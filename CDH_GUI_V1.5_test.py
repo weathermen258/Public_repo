@@ -25,8 +25,6 @@ file_menu = Menu(
 )
 
 # add menu items to the File menu
-file_menu.add_command(label='Thêm danh sách trạm')
-file_menu.add_command(label='Open...')
 file_menu.add_separator()
 
 # add Exit menu item
@@ -494,8 +492,6 @@ def get_manual_data():
             
         
         
-        import openpyxl
-        from openpyxl import Workbook
         from openpyxl import load_workbook
         sta_wb = load_workbook(stations_file, data_only=True)
         ## this is the part which read the stations name and id##
