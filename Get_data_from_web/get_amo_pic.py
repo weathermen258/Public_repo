@@ -19,3 +19,4 @@ box = (210, 180, 500, 500)
 img2 = img.crop(box)
 img2.save('amo_cropped.png')
 #img2.show()
+import xlwings as xw

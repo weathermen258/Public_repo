@@ -1,30 +1,25 @@
 import folium
-
+import sys,os
+cwd = os.getcwd()
+html_file = os.path.join(cwd,"map.html")
 # Make an empty map
-m = folium.Map(location=[20,0], tiles="OpenStreetMap", zoom_start=2)
+m = folium.Map(location=[18.1,105.3],zoom_start=7.5)
 
 # Import the pandas library
 import pandas as pd
 
 # Make a data frame with dots to show on the map
-data = pd.DataFrame({
-   'lon':[-58, 2, 145, 30.32, -4.03, -73.57, 36.82, -38.5],
-   'lat':[-34, 49, -38, 59.93, 5.33, 45.52, -1.29, -12.97],
-   'name':['Buenos Aires', 'Paris', 'melbourne', 'St Petersbourg', 'Abidjan', 'Montreal', 'Nairobi', 'Salvador'],
-   'value':[10, 12, 40, 70, 23, 43, 100, 43]
-}, dtype=str)
+data = pd.read_csv("./Get_data_from_web/loc_name.csv")
+
 for i in range(0,len(data)):
    folium.Marker(
       location=[data.iloc[i]['lat'], data.iloc[i]['lon']],
-      popup=data.iloc[i]['name'],
+      popup=data.iloc[i]['Station'],
    ).add_to(m)
-   m.save('./folium-map.html')
-from tkinter import *
+   m.save(html_file)
 import webview
 # define an instance of tkinter
-tk = Tk()
 #  size of the window where we show our website
-tk.geometry("800x450")
 # Open website
-webview.create_window('Banana', './folium-map.html')
+webview.create_window('Bando',url=html_file,width=1024,height=768)
 webview.start()
