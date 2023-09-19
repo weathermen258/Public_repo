@@ -777,6 +777,7 @@ def open_rain_menu():
         data_wb.save(output_file)
         data_wb.close()
         import pandas as pd
+        global df_R
         df_R = pd.read_excel(output_file,sheet_name='Precip_1h',index_col=None)
         df_R = df_R[df_R['lats']>17.5]
         df_R.insert(1,'Sum',df_R.iloc[:,3:].sum(axis=1))
@@ -784,6 +785,9 @@ def open_rain_menu():
         df_R = df_R.drop_duplicates(subset='Stations')
         cols = ['Stations','Sum']
         df_R['Sum'] = df_R['Sum'].apply('{:.1f}'.format)
+        global output_file_2
+        output_file_2 = os.path.join(cwd+"/Output/",'CDH_RR_'+str(start_date0)+"_"+str(end_date0)+".xlsx")
+        df_R.to_excel(output_file_2)
         #print (cols)
         list_values = df_R.to_numpy().tolist()
         treeFrame = ttk.Frame(select_rain_menu)
@@ -801,6 +805,11 @@ def open_rain_menu():
         treeview.configure(xscrollcommand=treeScroll_2.set)
         treeScroll_2.pack(side="bottom", fill="x")
         treeview.pack()
+        MsgBox = tk.messagebox.askquestion ('Hoàn thành',"Đã tải xong dữ liệu mưa tự động,\n bạn có muốn mở file không ?")
+        if MsgBox == 'yes':
+            os.startfile(output_file_2)
+        return df_R
+    def View_web ():
         # This part display in map
         import folium
         from folium.features import DivIcon
@@ -957,15 +966,19 @@ def open_rain_menu():
         cwd0 = os.getcwd()
         html_file = os.path.join(cwd0,"map.html")
         m.save(html_file)
-        import webview
+        import webbrowser
         # Open website
-        webview.create_window('Bando',url=html_file,width=1024,height=768)
-        webview.start()
+        webbrowser.open(html_file)
         return
-    
+    def open_rain_file():
+        
+        return
     button_get_rain = Button(select_rain_menu, text = "Get_rain" , command = get_rain)\
          .place(x=80,y =160)
-    
+    button_web_view = Button(select_rain_menu, text = "View_web" , command = View_web)\
+         .place(x=75,y =200)
+    #button_web_view = Button(select_rain_menu, text = "Open_file" , command = open_rain_file)\
+    #     .place(x=80,y =240)
     
     return
 button = Button(root, text = "get_data" , command = get_manual_data)\
