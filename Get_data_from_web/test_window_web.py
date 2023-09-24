@@ -27,23 +27,27 @@ def number_DivIcon(color,number):
     return icon
 # Make a data frame with dots to show on the map
 import pandas as pd
-data = pd.read_csv("./Get_data_from_web/loc_name.csv")
+data = pd.read_excel("./Get_data_from_web/data.xlsx")
+print (data)
 div = folium.DivIcon(html=(
     '<svg height="100" width="100">'
     '<circle cx="50" cy="50" r="40" stroke="yellow" stroke-width="3" fill="none" />'
     '<text x="30" y="50" fill="black">9000</text>'
     '</svg>'
 ))
-for i in range(0,len(data)-200):
-   folium.Marker(
-      location=[data.iloc[i]['lat'], data.iloc[i]['lon']],
-      popup=data.iloc[i]['Station'],icon=folium.Icon(color='blue',icon_color='blue'),markerColor='blue',
-   ).add_to(m)
-   folium.Marker(
-        location=[data.iloc[i]['lat'], data.iloc[i]['lon']],
-        popup="Delivery " + '{:.2f}'.format(data.iloc[i]['lat']),
-        icon= number_DivIcon('black',data.iloc[i]['lat'])
-    ).add_to(m)
+for i in range(0,len(data)):
+    loc = [data.iloc[i]['lat'], data.iloc[i]['lon']]
+    folium.Marker(
+        location=loc,
+        popup=data.iloc[i]['Station'],
+        icon=folium.Icon(color='blue',icon='location-pin'),
+        markerColor='blue',
+        ).add_to(m)
+    #folium.Marker(
+    #    location=loc,
+    #    popup=data.iloc[i]['Station'],
+    #    icon= number_DivIcon('black',float(data.iloc[i]['Sum'])),
+    #    ).add_to(m)
 m.save(html_file)
 import webview
 # define an instance of tkinter

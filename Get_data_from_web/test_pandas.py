@@ -1,68 +1,12 @@
-from selenium import webdriver
-import time
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service as ChromeService
-import pandas as pd
-import os
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
 from datetime import datetime, timedelta
-start_time = datetime.now()
-year = start_time.strftime("%Y")
-month = start_time.strftime("%m")
-day = start_time.strftime("%d")
-hour = start_time.strftime("%H")
-print (year, month,day,hour)
-ba_ngay_truoc = str((start_time - timedelta(hours=72)).strftime("%m%d%Y%H"))
-date = str((start_time - timedelta(hours=72)).strftime("%m/%d/%Y"))
-print (date)
+ba_ngay_truoc = str((datetime.now() - timedelta(hours=72)).strftime("%m%d%Y%H"))
 print (ba_ngay_truoc[0:8],str(int(ba_ngay_truoc[8:10])))
-options = webdriver.ChromeOptions()
-cwd = os.getcwd()
-print (cwd)
-prefs = {"download.default_directory":cwd}
-options.add_experimental_option("prefs",prefs)
-#options.add_argument('--headless')
-#options.add_argument('window-size=360x360')
-driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()),options=options)
-pth = 'http://222.255.11.82/Modules/MuaTudong/BaoCaoChiTietDuLieu.aspx'
-driver.get(pth)
-driver.find_element(by=By.ID,value='txtUserName').send_keys('admin')
-driver.find_element(by=By.ID,value='txtPWD').send_keys('ttdl@2021')
-driver.find_element(by=By.ID,value='btnSubmit').click()
-#driver.maximize_window()
-pth = 'http://222.255.11.82/Modules/MuaTuDong/frmKhaiThacSoLieuMua.aspx'
-driver.get(pth)
 
-select_element = Select(driver.find_element(by=By.CSS_SELECTOR,value='#DropDownList1'))
-select_element.select_by_value('5')
-time.sleep(10)
-bat_dau = driver.find_element(by=By.ID,value='txtOrderDate')
-def get_bat_dau():
-    global value
-    value = str(bat_dau.get_attribute("value"))
-    return value
-
-date0 = get_bat_dau()
-while (date0 != date):
-    print ('retrying ...')
-    bat_dau.send_keys(ba_ngay_truoc[0:8])
-    time.sleep(3)
-    date0 = get_bat_dau()
-    print (date0)
-
-select_element = Select(driver.find_element(by=By.ID,value='DropDownListgiodi'))
-select_element.select_by_value(str(int(ba_ngay_truoc[8:10])))
-
-driver.find_element(by=By.ID,value='viewDate').click()
-time.sleep(5)
-driver.find_element(by=By.ID,value='LinkButton1').click()
-time.sleep(5)
-#os.startfile('ExportExcell.xls')
-driver.close()
+import pandas as pd
 list0 = pd.read_html('ExportExcell.xls',encoding='UTF-8')
-os.remove('ExportExcell.xls')
 df0 = list0[0]
+name = df0.columns[-2]
+print (name)
 add_list = list(df0['address'])
 #print (add_list)
 xa = []
@@ -86,31 +30,20 @@ df_sum.insert(5,'Sum12h',df0.iloc[:,-13:-1].sum(axis=1))
 df_sum.insert(6,'Sum24h',df0.iloc[:,-25:-1].sum(axis=1))
 df_sum.insert(7,'Sum48h',df0.iloc[:,-49:-1].sum(axis=1))
 df_sum.insert(8,'Sum72h',df0.iloc[:,-73:-1].sum(axis=1))
-df_sum.to_excel('Tong_Hop_Mua_BTB.xlsx',engine = 'openpyxl')
 
 #print (df_sum)
 df_sum = df_sum.sort_values(by=["Sum6h"],ascending=False)
+df_sum.to_excel('Tong_Hop_Mua_BTB.xlsx',engine = 'openpyxl')
 
 df_sum = df_sum.loc[df_sum["Sum6h"] >= 30]
 df_NA = df_sum.loc[df_sum["tinh"] == " Tỉnh Nghệ An"]
 df_TH = df_sum.loc[df_sum["tinh"] == " Tỉnh Thanh Hóa"]
 df_HT = df_sum.loc[df_sum["tinh"] == " Tỉnh Hà Tĩnh"]
 
-
 with pd.ExcelWriter('Tong_Hop_Theo_Tinh.xlsx') as writer:
    df_NA.to_excel(writer,sheet_name='Nghe An')
    df_TH.to_excel(writer,sheet_name='Thanh Hoa')
    df_HT.to_excel(writer,sheet_name='Ha Tinh')
-
-txt6h_NA = '6 giờ qua,\n Tỉnh Nghệ An:\n'
-txtsumNA = ''
-for i in range(len(df_NA)):
-    txt6h_NA = txt6h_NA + df_NA.iloc[i]['xa'] + "," + df_NA.iloc[i]['huyen'] + ":" +\
-               str(df_NA.iloc[i]['Sum6h']) +"mm\n"
-    txtsumNA = txtsumNA + df_NA.iloc[i]['xa'] + "," + df_NA.iloc[i]['huyen'] + ": Mưa 6h: " +\
-               str(df_NA.iloc[i]['Sum6h']) +"mm; Mưa 12h: " + str(df_NA.iloc[i]['Sum12h']) + "mm; Mưa 24h: " +\
-               str(df_NA.iloc[i]['Sum24h']) +"mm; Mưa 48h: " + str(df_NA.iloc[i]['Sum48h']) + "mm; Mưa 72h: " +\
-               str(df_NA.iloc[i]['Sum72h']) +"mm\n"
 if (len(df_NA) >=1):   
     txt6h_NA = '6 giờ qua,\n Tỉnh Nghệ An:\n'
     txtsumNA = '72 giờ qua, \n Tỉnh Nghệ An: \n'
@@ -190,10 +123,7 @@ sent_mail = 'bc.nhietmua@gmail.com'
 #'huankttv_btb@yahoo.com.vn','leduccuong.kttv@gmail.com','pclbnghean@gmail.com',\
 #'radar.vinh.dkvbtb@gmail.com','tangandbkt@gmail.com','nguyenvanluongbtb@gmail.com',\
 #'bc.nhietmua@gmail.com','hang3.btb@gmail.com']
-name = df0.columns[-2]
-print (name)
-receive_mail = ['hang3.btb@gmail.com']
-
+receive_mail = ['bc.nhietmua@gmail.com','phannhuxuyen@gmail.com ','phantoantv@gmail.com']
 subject = 'Báo cáo mưa lớn ngày lúc '+name[2:4]+ ' giờ ngày '+ name[0:2]
 body = txt6h_NA + "\n" + txt6h_TH + "\n"+ txt6h_HT+ '\n'+ txtsumNA +"\n"+ txtsumTH+ "\n" + txtsumHT +"\n"
 files = ['Tong_Hop_Mua_BTB.xlsx','Tong_Hop_Theo_Tinh.xlsx']
@@ -213,3 +143,6 @@ context = ssl.create_default_context()
 print ('teste')
 send_mail(sent_mail,receive_mail,subject,body,files,username,password)
 print ('pass')
+#print (df6h)
+#print (df12h)
+#print (df72h)

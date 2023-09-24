@@ -1,7 +1,7 @@
-from netCDF4 import Dataset,num2date
+from netCDF4 import Dataset
 import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
+import sys
 
 ### read stations file
 stations = []
@@ -10,10 +10,10 @@ lons = []
 stations_bv = []
 lats_bv = []
 lons_bv = []
-
-from openpyxl import Workbook
+ini_date = sys.argv[1]
+#ini_date = '2023-09-14'
 from openpyxl import load_workbook
-wb = load_workbook("./nc_files/data.xlsx", data_only=True)
+wb = load_workbook("../nc_files/data.xlsx", data_only=True)
 sheet1 = wb['data']
 last_cell = len(sheet1['A'])
 stations = []
@@ -32,19 +32,15 @@ df_cfs['stations'] = stations
 df_cfs['lat'] = lats
 df_cfs['lon'] = lons
 
-df_ec = pd.DataFrame()
-df_ec['stations'] = stations
-df_ec['lat'] = lats
-df_ec['lon'] = lons
 ##############################################
-filename = "./nc_files/prate.2020010100.daily.nc"
+filename = "../nc_files/"+ini_date+".nc"
 nc_file=Dataset(filename,'r')
 nc_lats = nc_file.variables['latitude'][:]
 nc_lons = nc_file.variables['longitude'][:]
 xtimes = nc_file.variables['time'][:]
 times = []
 for time in xtimes:
-   time0 = datetime.fromtimestamp(time).strftime("%Y%m%d")
+   time0 = datetime.fromtimestamp(time).strftime("%Y-%m-%d %H:%M:%S")
    times.append(time0)
 rain = nc_file.variables['prate']
 
@@ -67,11 +63,28 @@ get_index(lats,lons,nc_lats,nc_lons)
 #print (idx_lats)
 #print (idx_lons)
 
-for i in range(46):
+for i in range(len(times)):
    rain_value = []
    for k in range(len(idx_lats)):
       rain_value.append(rain[i][idx_lats[k]][idx_lons[k]])
    df_cfs[times[i]] = rain_value
+df_cfs0 = df_cfs.drop(columns =['lat','lon'],axis=1)
+df_cfs0.rename(columns={'stations':'Date'},inplace=True)
+df_cfs0.set_index('Date',inplace=True)
+df_T = df_cfs0.T
+output_file = "../nc_files/ketqua_CFS.xlsx"
+temp_file = "../nc_files/temp.csv"
+df_T.to_csv(temp_file,index=True,index_label='Date')
+with pd.ExcelWriter(output_file) as writer:
+   df_cfs.to_excel(writer,sheet_name='CFS')
+   df_T.to_excel(writer,sheet_name='CFS_T')
+from mikeio import Dfs0
+df_tv = pd.read_csv(temp_file,parse_dates=True,index_col='Date')
+dfs_file = '../nc_files/kq.dfs0'
+df_tv.to_dfs0(dfs_file)
 
-df_cfs.to_excel("./nc_files/ketqua_CFS.xlsx",sheet_name='CFS')
+#test_file = os.path.join(results_dir,'testfile.csv')
+#dfs_file = os.path.join(results_dir,'kq_gsm_'+ times[0] +'.dfs0')
+#df_hour_transpose.to_csv(test_file,index=True,index_label='Date')
+#df_tv = pd.read_csv(test_file,parse_dates=True,index_col='Date')
 ############################################################
