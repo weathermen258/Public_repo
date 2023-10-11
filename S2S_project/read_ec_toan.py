@@ -2,7 +2,7 @@ from netCDF4 import Dataset,num2date
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-
+import sys
 ### read stations file
 stations = []
 lats = []
@@ -10,7 +10,7 @@ lons = []
 stations_bv = []
 lats_bv = []
 lons_bv = []
-
+ini_date = sys.argv[1]
 from openpyxl import Workbook
 from openpyxl import load_workbook
 wb = load_workbook("./Toa_do_LV_sCa.xlsx", data_only=True)
@@ -34,7 +34,7 @@ df_ec['lat'] = lats
 df_ec['lon'] = lons
 
 ############################################################
-filename = "./ec/2023-08-31.nc"
+filename = "./ec/"+ini_date+".nc"
 ec_file=Dataset(filename,'r')
 ec_lats = ec_file.variables['latitude'][:]
 ec_lons = ec_file.variables['longitude'][:]
@@ -80,7 +80,7 @@ df_cfs0 = df_ec.drop(columns =['lat','lon'],axis=1)
 df_cfs0.rename(columns={'stations':'Date'},inplace=True)
 df_cfs0.set_index('Date',inplace=True)
 df_T = df_cfs0.T
-output_file = "./ketqua_EC.xlsx"
+output_file = "./ketqua_EC_sCa"+ini_date+".xlsx"
 temp_file = "./temp.csv"
 with pd.ExcelWriter(output_file) as writer:
    df_ec.to_excel(writer,sheet_name='EC')
@@ -93,9 +93,9 @@ for i in range(len(col_names)):
    df_col.to_csv(temp_file,index=True,index_label='Date')
    df_tv = pd.read_csv(temp_file,parse_dates=True,index_col='Date')
    if ("RAINFALL" in col_names[i]):
-      dfs_file = './songca_ec/'+col_names[i]+'.dfs0'
+      dfs_file = './songca_ec/'+ini_date+'/'+col_names[i]+'.dfs0'
    elif ('X' in col_names[i]):
-      dfs_file = './songca_ec/'+col_names[i]+'.dfs0'
+      dfs_file = './songca_ec/'+ini_date+'/'+col_names[i]+'.dfs0'
    else:
-      dfs_file = './songca_ec/'+col_names[i]+'_Rainfall.dfs0'
+      dfs_file = './songca_ec/'+ini_date+'/'+col_names[i]+'_Rainfall.dfs0'
    df_tv.to_dfs0(dfs_file,items=[ItemInfo('Weighted',EUMType.Rainfall,EUMUnit.millimeter)])

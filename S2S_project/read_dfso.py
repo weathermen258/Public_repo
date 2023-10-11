@@ -1,5 +1,9 @@
 import mikeio
-ds = mikeio.read('.\songma_ec\TRUNGSON_Rainfall.dfs0')
+import os
+cwd = os.getcwd()
+file = os.path.join(cwd,'BAN VE 83_Rainfall.dfs0')
+print (file)
+ds = mikeio.read(file)
 print (ds)
 df = ds.to_dataframe()
 print (df)

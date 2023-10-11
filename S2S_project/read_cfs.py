@@ -11,6 +11,7 @@ stations_bv = []
 lats_bv = []
 lons_bv = []
 input_date = sys.argv[1]
+input_date = '2019060100'
 from openpyxl import load_workbook
 wb = load_workbook("./data.xlsx", data_only=True)
 sheet1 = wb['data']
@@ -72,6 +73,7 @@ df_cfs0.rename(columns={'stations':'Date'},inplace=True)
 df_cfs0.set_index('Date',inplace=True)
 df_T = df_cfs0.T
 output_file = "./ketqua_CFS_"+input_date+".xlsx"
+
 #temp_file = "./temp.csv"
 #df_T.to_csv(temp_file,index=True,index_label='Date')
 with pd.ExcelWriter(output_file) as writer:

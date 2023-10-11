@@ -11,7 +11,8 @@ lons = []
 stations_bv = []
 lats_bv = []
 lons_bv = []
-input_date = sys.argv[1]
+#input_date = sys.argv[1]
+input_date = '2019-06-01'
 from openpyxl import Workbook
 from openpyxl import load_workbook
 wb = load_workbook("./data.xlsx", data_only=True)
@@ -32,7 +33,18 @@ df_ec = pd.DataFrame()
 df_ec['stations'] = stations
 df_ec['lat'] = lats
 df_ec['lon'] = lons
-
+df_ec3 = pd.DataFrame()
+df_ec3['stations'] = stations
+df_ec3['lat'] = lats
+df_ec3['lon'] = lons
+df_ec5 = pd.DataFrame()
+df_ec5['stations'] = stations
+df_ec5['lat'] = lats
+df_ec5['lon'] = lons
+df_ec7 = pd.DataFrame()
+df_ec7['stations'] = stations
+df_ec7['lat'] = lats
+df_ec7['lon'] = lons
 ############################################################
 filename = "./ec_raw/raw_tp_m1_"+input_date+".nc"
 ec_file=Dataset(filename,'r')
@@ -65,28 +77,68 @@ def get_index_ec(lats,lons,ec_lats,ec_lons):
 get_index_ec(lats,lons,ec_lats,ec_lons)
 #print (idx_lats)
 #print (idx_lons)
-for i in range(0,len(ec_times),1):
+for i in range(0,len(ec_times),12):
    #print (i)
    rain_ec = []
    for k in range(len(idx_lats)):
-      if (i>=1):
+      if (i>=12):
          if (ec_rain[i][idx_lats[k]][idx_lons[k]] - \
-            ec_rain[i-1][idx_lats[k]][idx_lons[k]] >= 0):
+            ec_rain[i-12][idx_lats[k]][idx_lons[k]] >= 0):
             rain_ec.append(ec_rain[i][idx_lats[k]][idx_lons[k]] - \
-               ec_rain[i-1][idx_lats[k]][idx_lons[k]])
+               ec_rain[i-12][idx_lats[k]][idx_lons[k]])
          else:
             rain_ec.append(0)
       else:
          rain_ec.append(ec_rain[i][idx_lats[k]][idx_lons[k]])
-   df_ec[ec_times[i]] = rain_ec
+   df_ec3[ec_times[i]] = rain_ec
 
-df_ec0 = df_ec.drop(columns =['lat','lon'],axis=1)
-df_ec0.rename(columns={'stations':'Date'},inplace=True)
-df_ec0.set_index('Date',inplace=True)
-df_T = df_ec0.T
+df_ec3 = df_ec3.drop(columns =['lat','lon'],axis=1)
+df_ec3.rename(columns={'stations':'Date'},inplace=True)
+df_ec3.set_index('Date',inplace=True)
+df_T_3 = df_ec3.T
+for i in range(0,len(ec_times),20):
+   #print (i)
+   rain_ec = []
+   for k in range(len(idx_lats)):
+      if (i>=20):
+         if (ec_rain[i][idx_lats[k]][idx_lons[k]] - \
+            ec_rain[i-20][idx_lats[k]][idx_lons[k]] >= 0):
+            rain_ec.append(ec_rain[i][idx_lats[k]][idx_lons[k]] - \
+               ec_rain[i-20][idx_lats[k]][idx_lons[k]])
+         else:
+            rain_ec.append(0)
+      else:
+         rain_ec.append(ec_rain[i][idx_lats[k]][idx_lons[k]])
+   df_ec5[ec_times[i]] = rain_ec
+
+df_ec5 = df_ec5.drop(columns =['lat','lon'],axis=1)
+df_ec5.rename(columns={'stations':'Date'},inplace=True)
+df_ec5.set_index('Date',inplace=True)
+df_T_5 = df_ec5.T
+for i in range(0,len(ec_times),28):
+   #print (i)
+   rain_ec = []
+   for k in range(len(idx_lats)):
+      if (i>=28):
+         if (ec_rain[i][idx_lats[k]][idx_lons[k]] - \
+            ec_rain[i-28][idx_lats[k]][idx_lons[k]] >= 0):
+            rain_ec.append(ec_rain[i][idx_lats[k]][idx_lons[k]] - \
+               ec_rain[i-28][idx_lats[k]][idx_lons[k]])
+         else:
+            rain_ec.append(0)
+      else:
+         rain_ec.append(ec_rain[i][idx_lats[k]][idx_lons[k]])
+   df_ec7[ec_times[i]] = rain_ec
+
+df_ec7 = df_ec7.drop(columns =['lat','lon'],axis=1)
+df_ec7.rename(columns={'stations':'Date'},inplace=True)
+df_ec7.set_index('Date',inplace=True)
+df_T_7 = df_ec7.T
 output_file = "./ketqua_EC_"+input_date+".xlsx"
 #temp_file = "./temp.csv"
 #df_T.to_csv(temp_file,index=True,index_label='Date')
 with pd.ExcelWriter(output_file) as writer:
    #df_ec.to_excel(writer,sheet_name='EC')
-   df_T.to_excel(writer,sheet_name='EC_T')
+   df_T_3.to_excel(writer,sheet_name='EC_3Ngay')
+   df_T_5.to_excel(writer,sheet_name='EC_5ngay')
+   df_T_7.to_excel(writer,sheet_name='EC_7Ngay')

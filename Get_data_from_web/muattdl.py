@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import Select
 from datetime import datetime, timedelta
 
 start_time = datetime.now()
+start_time = datetime.strptime('2023-10-02 00:00:00','%Y-%m-%d %H:%M:%S')
 moment = start_time.strftime("%Y%m%d%H")
 print (moment)
 if os.path.isfile('token_'+moment+'.txt'):
@@ -16,6 +17,7 @@ if os.path.isfile('token_'+moment+'.txt'):
     exit()
 ba_ngay_truoc = str((start_time - timedelta(hours=72)).strftime("%m%d%Y%H"))
 long_3ngay_tr = str((start_time - timedelta(hours=72)).strftime("%A, %B %d, %Y"))
+print (long_3ngay_tr)
 date = str((start_time - timedelta(hours=72)).strftime("%m/%d/%Y"))
 print (date)
 print (ba_ngay_truoc[0:8],str(int(ba_ngay_truoc[8:10])))
@@ -38,13 +40,16 @@ driver.get(pth)
 ################
 test0 = driver.find_element(by=By.XPATH,value="//*[@id='txtOrderDate']")
 test0.click()
+if (int(moment[6:8]) <=3):
+    arrow = driver.find_element(by=By.XPATH,value='/html/body/form/div/table[3]/tbody/tr/td[1]/table[1]/tbody/tr[1]/td[2]/div/div/div[1]/div[1]/div')
+    arrow.click()
 for i in range(1,7):
     for j in range(1,8):
         xpath = '/html/body/form/div/table[3]/tbody/tr/td[1]/table[1]/tbody/tr[1]/\
             td[2]/div/div/div[2]/div[1]/table/tbody/tr['+str(i)+']/td['+str(j)+']'
-        print (xpath)
+        #print (xpath)
         test2 = driver.find_element(by=By.XPATH,value=xpath)
-        print (test2.find_element(by=By.TAG_NAME,value='div').get_attribute("title"))
+        #print (test2.find_element(by=By.TAG_NAME,value='div').get_attribute("title"))
         if (test2.find_element(by=By.TAG_NAME,value='div').get_attribute("title") == long_3ngay_tr):
             test2.click()
 
@@ -83,7 +88,7 @@ time.sleep(5)
 #os.startfile('ExportExcell.xls')
 driver.close()
 list0 = pd.read_html('ExportExcell.xls',encoding='UTF-8')
-os.remove('ExportExcell.xls')
+#os.remove('ExportExcell.xls')
 df0 = list0[0]
 add_list = list(df0['address'])
 #print (add_list)
@@ -91,6 +96,8 @@ xa = []
 huyen = []
 tinh = []
 for add in add_list:
+    #print (add)
+    add = add.replace('.',',')
     xa.append(add.split(',')[0])
     huyen.append(add.split(',')[1])
     tinh.append(add.split(',')[2])
