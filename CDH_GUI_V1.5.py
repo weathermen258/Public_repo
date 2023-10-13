@@ -681,7 +681,7 @@ def open_rain_menu():
         else:
             urllib.request.urlretrieve(url_0,stations_file)
         url_00= "https://cdh.vnmha.gov.vn/KiWIS/KiWIS?service=kisters&type=queryServices"+\
-                   "&request=getTimeseriesValues&datasource=0&format=xlsx&ts_path=5/*/Precip/h.total"+\
+                   "&request=getTimeseriesValues&datasource=0&format=xlsx&&timeseriesgroup_id=2998222"+\
                    "&returnfields=Timestamp,Value&metadata=true&"+\
                    "from="+str(start_date0)+"%20"+begin_hour0+":00:00&to="+str(end_date0)+"%20"+finish_hour0+":00:00"
         print (url_00)

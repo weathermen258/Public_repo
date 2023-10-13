@@ -12,7 +12,7 @@ stations_bv = []
 lats_bv = []
 lons_bv = []
 #input_date = sys.argv[1]
-input_date = '2019-06-01'
+input_date = '2019-09-06'
 from openpyxl import Workbook
 from openpyxl import load_workbook
 wb = load_workbook("./data.xlsx", data_only=True)
